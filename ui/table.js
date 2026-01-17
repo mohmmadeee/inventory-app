@@ -41,16 +41,8 @@ function renderLaptopSummary(items, containerId) {
           <p class="big-number">${totalUsed}</p>
         </div>
       </div>
-      <div class="brand-breakdown">
-        <h4>حسب العلامة التجارية:</h4>
-        <ul>
+    </div>
   `;
-
-  Object.entries(summary).forEach(([brand, counts]) => {
-    html += `<li>${brand}: ${counts["متاح"]} متاح، ${counts["مستخدم"]} مستخدم</li>`;
-  });
-
-  html += `</ul></div></div>`;
   document.getElementById(containerId).innerHTML = html;
 }
 
@@ -89,8 +81,8 @@ function renderLaptopTable(items, containerId) {
         <td>${item.screen_serial}</td>
         <td><span class="status ${statusClass}">${statusText}</span></td>
         <td>
-          <button class="btn-sm" onclick="editLaptop(${item.id})">تعديل</button>
-          <button class="btn-sm btn-danger" onclick="deleteLaptop(${item.id})">حذف</button>
+          <button class="btn-sm edit-laptop-btn" data-id="${item.id}">تعديل</button>
+          <button class="btn-sm btn-danger delete-laptop-btn" data-id="${item.id}">حذف</button>
         </td>
       </tr>
     `;
@@ -142,16 +134,8 @@ function renderPrinterSummary(items, containerId) {
           <p class="big-number">${totalUsed}</p>
         </div>
       </div>
-      <div class="brand-breakdown">
-        <h4>حسب العلامة التجارية:</h4>
-        <ul>
+    </div>
   `;
-
-  Object.entries(summary).forEach(([brand, counts]) => {
-    html += `<li>${brand}: ${counts["متاح"]} متاح، ${counts["مستخدم"]} مستخدم</li>`;
-  });
-
-  html += `</ul></div></div>`;
   document.getElementById(containerId).innerHTML = html;
 }
 
@@ -186,8 +170,8 @@ function renderPrinterTable(items, containerId) {
         <td>${item.serial}</td>
         <td><span class="status ${statusClass}">${statusText}</span></td>
         <td>
-          <button class="btn-sm" onclick="editPrinter(${item.id})">تعديل</button>
-          <button class="btn-sm btn-danger" onclick="deletePrinter(${item.id})">حذف</button>
+          <button class="btn-sm edit-printer-btn" data-id="${item.id}">تعديل</button>
+          <button class="btn-sm btn-danger delete-printer-btn" data-id="${item.id}">حذف</button>
         </td>
       </tr>
     `;
