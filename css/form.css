@@ -1,0 +1,118 @@
+/* Form Styling */
+
+.form-section {
+  background: var(--bg-card);
+  padding: var(--spacing-2xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+}
+
+#laptopForm,
+#printerForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.form-group label {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--gray-700);
+  text-transform: capitalize;
+}
+
+#laptopForm input,
+#printerForm input,
+#laptopForm select,
+#printerForm select {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-fast);
+  font-family: var(--font-family);
+  background: white;
+}
+
+#laptopForm input:focus,
+#printerForm input:focus,
+#laptopForm select:focus,
+#printerForm select:focus {
+  outline: none;
+  border-color: var(--primary-main);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#laptopForm input::placeholder,
+#printerForm input::placeholder {
+  color: var(--gray-400);
+}
+
+#laptopForm button,
+#printerForm button {
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: linear-gradient(
+    135deg,
+    var(--primary-main) 0%,
+    var(--primary-light) 100%
+  );
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  font-family: var(--font-family);
+}
+
+#laptopForm button:hover,
+#printerForm button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+#laptopForm button:active,
+#printerForm button:active {
+  transform: translateY(0);
+}
+
+/* Filter Section */
+.filter-section {
+  background: var(--bg-card);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-section label {
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.filter-section select {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  background: white;
+}
+
+.filter-section select:focus {
+  outline: none;
+  border-color: var(--primary-main);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);

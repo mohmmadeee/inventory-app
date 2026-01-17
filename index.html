@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <title>نظام المخزون</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/sidebar.css" />
+    <link rel="stylesheet" href="css/form.css" />
+    <link rel="stylesheet" href="css/table.css" />
+  </head>
+  <body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+      <div class="sidebar-header">📦 نظام المخزون</div>
+      <nav class="sidebar-nav">
+        <div class="nav-item active" data-section="add-laptop">
+          <span class="nav-icon">💻</span>
+          <span>إضافة جهاز كمبيوتر</span>
+        </div>
+        <div class="nav-item" data-section="add-printer">
+          <span class="nav-icon">🖨️</span>
+          <span>إضافة طابعة</span>
+        </div>
+        <div class="nav-item" data-section="view-laptops">
+          <span class="nav-icon">📋</span>
+          <span>عرض أجهزة الكمبيوتر</span>
+        </div>
+        <div class="nav-item" data-section="view-printers">
+          <span class="nav-icon">📋</span>
+          <span>عرض الطابعات</span>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Add Laptop Section -->
+      <div id="add-laptop" class="section active">
+        <div class="content-header">
+          <h1>💻 إضافة جهاز كمبيوتر</h1>
+        </div>
+        <div class="content-area">
+          <div class="form-section">
+            <form id="laptopForm">
+              <input type="hidden" id="laptopId" />
+
+              <div class="form-group">
+                <label for="lap-location">الموقع</label>
+                <select id="lap-location" required>
+                  <option value="">اختر الموقع</option>
+                  <option value="A">الموقع أ</option>
+                  <option value="B">الموقع ب</option>
+                  <option value="C">الموقع ج</option>
+                  <option value="D">الموقع د</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="lap-brand">العلامة التجارية</label>
+                <select id="lap-brand" required>
+                  <option value="">اختر العلامة التجارية</option>
+                  <option value="HP">HP</option>
+                  <option value="Lenovo">Lenovo</option>
+                  <option value="Dell">Dell</option>
+                  <option value="ASUS">ASUS</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="lap-model">الموديل</label>
+                <input id="lap-model" placeholder="أدخل الموديل" required />
+              </div>
+
+              <div class="form-group">
+                <label for="lap-processor">المعالج</label>
+                <input id="lap-processor" placeholder="أدخل المعالج" required />
+              </div>
+
+              <div class="form-group">
+                <label for="lap-pc-serial">رقم تسلسل الكمبيوتر</label>
+                <input
+                  id="lap-pc-serial"
+                  placeholder="أدخل رقم التسلسل"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="lap-screen-serial">رقم تسلسل الشاشة</label>
+                <input
+                  id="lap-screen-serial"
+                  placeholder="أدخل رقم التسلسل"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="lap-status">الحالة</label>
+                <select id="lap-status" required>
+                  <option value="">اختر الحالة</option>
+                  <option value="Available">متاح</option>
+                  <option value="Used">مستخدم</option>
+                </select>
+              </div>
+
+              <button type="submit">💾 حفظ الجهاز</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Printer Section -->
+      <div id="add-printer" class="section">
+        <div class="content-header">
+          <h1>🖨️ إضافة طابعة</h1>
+        </div>
+        <div class="content-area">
+          <div class="form-section">
+            <form id="printerForm">
+              <input type="hidden" id="printerId" />
+
+              <div class="form-group">
+                <label for="pr-location">الموقع</label>
+                <select id="pr-location" required>
+                  <option value="">اختر الموقع</option>
+                  <option value="A">الموقع أ</option>
+                  <option value="B">الموقع ب</option>
+                  <option value="C">الموقع ج</option>
+                  <option value="D">الموقع د</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="pr-brand">العلامة التجارية</label>
+                <select id="pr-brand" required>
+                  <option value="">اختر العلامة التجارية</option>
+                  <option value="HP">HP</option>
+                  <option value="Canon">Canon</option>
+                  <option value="Xerox">Xerox</option>
+                  <option value="Brother">Brother</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="pr-model">الموديل</label>
+                <input id="pr-model" placeholder="أدخل الموديل" required />
+              </div>
+
+              <div class="form-group">
+                <label for="pr-serial">رقم التسلسل</label>
+                <input id="pr-serial" placeholder="أدخل رقم التسلسل" required />
+              </div>
+
+              <div class="form-group">
+                <label for="pr-status">الحالة</label>
+                <select id="pr-status" required>
+                  <option value="">اختر الحالة</option>
+                  <option value="Available">متاح</option>
+                  <option value="Used">مستخدم</option>
+                </select>
+              </div>
+
+              <button type="submit">💾 حفظ الطابعة</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Laptops Section -->
+      <div id="view-laptops" class="section">
+        <div class="content-header">
+          <h1>📋 عرض أجهزة الكمبيوتر</h1>
+        </div>
+        <div class="content-area">
+          <div class="filter-section">
+            <label for="laptop-location-filter">تصفية حسب الموقع:</label>
+            <select id="laptop-location-filter">
+              <option value="">جميع المواقع</option>
+              <option value="A">الموقع أ</option>
+              <option value="B">الموقع ب</option>
+              <option value="C">الموقع ج</option>
+              <option value="D">الموقع د</option>
+            </select>
+          </div>
+          <div class="summary-section" id="laptopSummary"></div>
+          <div class="table-section">
+            <div id="laptopTableContainer"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Printers Section -->
+      <div id="view-printers" class="section">
+        <div class="content-header">
+          <h1>📋 عرض الطابعات</h1>
+        </div>
+        <div class="content-area">
+          <div class="filter-section">
+            <label for="printer-location-filter">تصفية حسب الموقع:</label>
+            <select id="printer-location-filter">
+              <option value="">جميع المواقع</option>
+              <option value="A">الموقع أ</option>
+              <option value="B">الموقع ب</option>
+              <option value="C">الموقع ج</option>
+              <option value="D">الموقع د</option>
+            </select>
+          </div>
+          <div class="summary-section" id="printerSummary"></div>
+          <div class="table-section">
+            <div id="printerTableContainer"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>

@@ -1,0 +1,43 @@
+{
+  "name": "inventory-app",
+  "version": "1.0.0",
+  "description": "Simple inventory desktop app",
+  "main": "main.js",
+  "author": "mohammad",
+  "license": "ISC",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.inventory.app",
+    "productName": "Inventory App",
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "certificateFile": null,
+      "certificatePassword": null
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "files": [
+      "main.js",
+      "renderer.js",
+      "index.html",
+      "css/**/*",
+      "ui/**/*",
+      "db/**/*",
+      "node_modules/**/*"
+    ]
+  }
+}

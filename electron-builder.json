@@ -1,0 +1,28 @@
+{
+  "appId": "com.inventory.app",
+  "productName": "Inventory App",
+  "directories": {
+    "output": "dist"
+  },
+  "files": [
+    "main.js",
+    "renderer.js",
+    "index.html",
+    "css/**/*",
+    "ui/**/*",
+    "db/**/*",
+    "package.json"
+  ],
+  "win": {
+    "target": ["nsis", "portable"],
+    "certificateFile": null,
+    "certificatePassword": null,
+    "signingHashAlgorithms": null
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true
+  }
+}
