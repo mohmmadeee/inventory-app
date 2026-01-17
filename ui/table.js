@@ -6,21 +6,18 @@ function renderLaptopSummary(items, containerId) {
     return;
   }
 
-  // Group by brand and status
-  const summary = {};
-  let totalAvailable = 0;
-  let totalUsed = 0;
+  // Count by status
+  let inService = 0;
+  let warehouse = 0;
+  let destruction = 0;
 
   items.forEach((item) => {
-    if (!summary[item.brand]) {
-      summary[item.brand] = { متاح: 0, مستخدم: 0 };
-    }
-    if (item.status === "Available") {
-      summary[item.brand]["متاح"]++;
-      totalAvailable++;
-    } else {
-      summary[item.brand]["مستخدم"]++;
-      totalUsed++;
+    if (item.status === "في الخدمة") {
+      inService++;
+    } else if (item.status === "مستودع") {
+      warehouse++;
+    } else if (item.status === "قيد الاتلاف") {
+      destruction++;
     }
   });
 
@@ -33,12 +30,16 @@ function renderLaptopSummary(items, containerId) {
           <p class="big-number">${items.length}</p>
         </div>
         <div class="card">
-          <h4>متاح</h4>
-          <p class="big-number">${totalAvailable}</p>
+          <h4>في الخدمة</h4>
+          <p class="big-number">${inService}</p>
         </div>
         <div class="card">
-          <h4>مستخدم</h4>
-          <p class="big-number">${totalUsed}</p>
+          <h4>مستودع</h4>
+          <p class="big-number">${warehouse}</p>
+        </div>
+        <div class="card">
+          <h4>قيد الاتلاف</h4>
+          <p class="big-number">${destruction}</p>
         </div>
       </div>
     </div>
@@ -56,29 +57,39 @@ function renderLaptopTable(items, containerId) {
   let html = `
     <table>
       <tr>
+        <th>اسم الجهاز</th>
         <th>الموقع</th>
         <th>العلامة التجارية</th>
         <th>الموديل</th>
         <th>المعالج</th>
-        <th>رقم التسلسل - الكمبيوتر</th>
-        <th>رقم التسلسل - الشاشة</th>
+        <th>اسم الموظف</th>
         <th>الحالة</th>
         <th>الإجراءات</th>
       </tr>
   `;
 
   items.forEach((item) => {
-    const statusClass =
-      item.status === "Available" ? "status-available" : "status-used";
-    const statusText = item.status === "Available" ? "متاح" : "مستخدم";
+    let statusClass = "status-default";
+    let statusText = item.status;
+
+    if (item.status === "في الخدمة") {
+      statusClass = "status-active";
+    } else if (item.status === "مستودع") {
+      statusClass = "status-warehouse";
+    } else if (item.status === "قيد الاتلاف") {
+      statusClass = "status-destruction";
+    }
+
+    const employeeName = item.employee_name || "-";
+
     html += `
       <tr>
+        <td>${item.device_name || "-"}</td>
         <td>${item.location}</td>
         <td>${item.brand}</td>
         <td>${item.model}</td>
         <td>${item.processor}</td>
-        <td>${item.pc_serial}</td>
-        <td>${item.screen_serial}</td>
+        <td>${employeeName}</td>
         <td><span class="status ${statusClass}">${statusText}</span></td>
         <td>
           <button class="btn-sm edit-laptop-btn" data-id="${item.id}">تعديل</button>
@@ -99,21 +110,18 @@ function renderPrinterSummary(items, containerId) {
     return;
   }
 
-  // Group by brand and status
-  const summary = {};
-  let totalAvailable = 0;
-  let totalUsed = 0;
+  // Count by status
+  let inService = 0;
+  let warehouse = 0;
+  let destruction = 0;
 
   items.forEach((item) => {
-    if (!summary[item.brand]) {
-      summary[item.brand] = { متاح: 0, مستخدم: 0 };
-    }
-    if (item.status === "Available") {
-      summary[item.brand]["متاح"]++;
-      totalAvailable++;
-    } else {
-      summary[item.brand]["مستخدم"]++;
-      totalUsed++;
+    if (item.status === "في الخدمة") {
+      inService++;
+    } else if (item.status === "مستودع") {
+      warehouse++;
+    } else if (item.status === "قيد الاتلاف") {
+      destruction++;
     }
   });
 
@@ -126,12 +134,16 @@ function renderPrinterSummary(items, containerId) {
           <p class="big-number">${items.length}</p>
         </div>
         <div class="card">
-          <h4>متاح</h4>
-          <p class="big-number">${totalAvailable}</p>
+          <h4>في الخدمة</h4>
+          <p class="big-number">${inService}</p>
         </div>
         <div class="card">
-          <h4>مستخدم</h4>
-          <p class="big-number">${totalUsed}</p>
+          <h4>مستودع</h4>
+          <p class="big-number">${warehouse}</p>
+        </div>
+        <div class="card">
+          <h4>قيد الاتلاف</h4>
+          <p class="big-number">${destruction}</p>
         </div>
       </div>
     </div>
@@ -149,25 +161,37 @@ function renderPrinterTable(items, containerId) {
   let html = `
     <table>
       <tr>
+        <th>اسم الجهاز</th>
         <th>الموقع</th>
         <th>العلامة التجارية</th>
         <th>الموديل</th>
-        <th>رقم التسلسل</th>
+        <th>اسم الموظف</th>
         <th>الحالة</th>
         <th>الإجراءات</th>
       </tr>
   `;
 
   items.forEach((item) => {
-    const statusClass =
-      item.status === "Available" ? "status-available" : "status-used";
-    const statusText = item.status === "Available" ? "متاح" : "مستخدم";
+    let statusClass = "status-default";
+    let statusText = item.status;
+
+    if (item.status === "في الخدمة") {
+      statusClass = "status-active";
+    } else if (item.status === "مستودع") {
+      statusClass = "status-warehouse";
+    } else if (item.status === "قيد الاتلاف") {
+      statusClass = "status-destruction";
+    }
+
+    const employeeName = item.employee_name || "-";
+
     html += `
       <tr>
+        <td>${item.device_name || "-"}</td>
         <td>${item.location}</td>
         <td>${item.brand}</td>
         <td>${item.model}</td>
-        <td>${item.serial}</td>
+        <td>${employeeName}</td>
         <td><span class="status ${statusClass}">${statusText}</span></td>
         <td>
           <button class="btn-sm edit-printer-btn" data-id="${item.id}">تعديل</button>
