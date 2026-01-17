@@ -21,7 +21,9 @@ const laptopForm = document.getElementById("laptopForm");
 const printerForm = document.getElementById("printerForm");
 
 let currentLaptopLocation = "";
+let currentLaptopLocationType = "directorate";
 let currentPrinterLocation = "";
+let currentPrinterLocationType = "directorate";
 
 // Update location dropdown based on selected location type
 function updateLocationDropdown(selectId, locationType) {
@@ -52,6 +54,65 @@ function updateLocationDropdown(selectId, locationType) {
   });
 }
 
+// Restore filter UI state
+function restoreLaptopFilters() {
+  const typeFilter = document.getElementById("laptop-location-type-filter");
+  const locationFilter = document.getElementById("laptop-location-filter");
+
+  // Set type filter to current value
+  typeFilter.value = currentLaptopLocationType;
+
+  // Populate location filter based on type
+  locationFilter.innerHTML = "";
+  if (currentLaptopLocationType === "directorate") {
+    DEPARTMENT_OPTIONS.forEach((option) => {
+      const optElement = document.createElement("option");
+      optElement.value = option.value;
+      optElement.textContent = option.label;
+      locationFilter.appendChild(optElement);
+    });
+  } else if (currentLaptopLocationType === "health_center") {
+    LOCATION_OPTIONS.forEach((option) => {
+      const optElement = document.createElement("option");
+      optElement.value = option.value;
+      optElement.textContent = option.label;
+      locationFilter.appendChild(optElement);
+    });
+  }
+
+  // Set location filter to current value
+  locationFilter.value = currentLaptopLocation;
+}
+
+function restorePrinterFilters() {
+  const typeFilter = document.getElementById("printer-location-type-filter");
+  const locationFilter = document.getElementById("printer-location-filter");
+
+  // Set type filter to current value
+  typeFilter.value = currentPrinterLocationType;
+
+  // Populate location filter based on type
+  locationFilter.innerHTML = "";
+  if (currentPrinterLocationType === "directorate") {
+    DEPARTMENT_OPTIONS.forEach((option) => {
+      const optElement = document.createElement("option");
+      optElement.value = option.value;
+      optElement.textContent = option.label;
+      locationFilter.appendChild(optElement);
+    });
+  } else if (currentPrinterLocationType === "health_center") {
+    LOCATION_OPTIONS.forEach((option) => {
+      const optElement = document.createElement("option");
+      optElement.value = option.value;
+      optElement.textContent = option.label;
+      locationFilter.appendChild(optElement);
+    });
+  }
+
+  // Set location filter to current value
+  locationFilter.value = currentPrinterLocation;
+}
+
 // Navigation
 function initNavigation() {
   const navItems = document.querySelectorAll(".nav-item");
@@ -69,11 +130,20 @@ function initNavigation() {
       sections.forEach((section) => section.classList.remove("active"));
       document.getElementById(sectionId).classList.add("active");
 
-      // Load data when viewing
+      // Clear form IDs when switching to add sections
+      if (sectionId === "add-laptop") {
+        document.getElementById("laptopId").value = "";
+      } else if (sectionId === "add-printer") {
+        document.getElementById("printerId").value = "";
+      }
+
+      // Load data when viewing and restore filters
       if (sectionId === "view-laptops") {
-        loadLaptops("");
+        restoreLaptopFilters();
+        loadLaptops();
       } else if (sectionId === "view-printers") {
-        loadPrinters("");
+        restorePrinterFilters();
+        loadPrinters();
       }
     });
   });
@@ -100,13 +170,30 @@ document.addEventListener("click", (e) => {
 });
 
 // Laptop Functions
-function loadLaptops(location) {
-  currentLaptopLocation = location;
+function loadLaptops(location, locationType) {
+  // Save current filter state
+  if (locationType) currentLaptopLocationType = locationType;
+  if (location !== undefined) currentLaptopLocation = location;
+
   db.getAllLaptops((err, rows) => {
     if (err) console.error(err);
-    const filteredRows = location
-      ? rows.filter((r) => r.location === location)
-      : rows;
+
+    let filteredRows = rows;
+
+    // If location is specified, filter by location
+    if (currentLaptopLocation) {
+      filteredRows = rows.filter((r) => r.location === currentLaptopLocation);
+    } else if (currentLaptopLocationType === "directorate") {
+      // If directorate type with no specific location, show all directorate devices
+      filteredRows = rows.filter((r) => r.location_type === "directorate");
+    } else if (currentLaptopLocationType === "health_center") {
+      // If health center type but no specific location selected, show nothing
+      filteredRows = [];
+    } else {
+      // Default: show directorate devices
+      filteredRows = rows.filter((r) => r.location_type === "directorate");
+    }
+
     renderLaptopSummary(filteredRows, "laptopSummary");
     renderLaptopTable(filteredRows, "laptopTableContainer");
   });
@@ -165,24 +252,54 @@ window.deleteLaptop = function (id) {
 laptopForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
+  // Validate required fields
+  const locationTypeValue = document.getElementById("lap-location-type").value;
+  const locationValue = document.getElementById("lap-location").value;
+  const statusValue = document.getElementById("lap-status").value;
+  const employeeNameValue = document.getElementById("lap-employee-name").value;
+
+  // Check if location type is selected
+  if (!locationTypeValue) {
+    alert("يجب اختيار نوع الموقع");
+    return;
+  }
+
+  // Check if location is selected
+  if (!locationValue) {
+    alert("يجب اختيار الموقع");
+    return;
+  }
+
+  // Check if status is selected
+  if (!statusValue) {
+    alert("يجب اختيار حالة الجهاز");
+    return;
+  }
+
+  // Check if employee name is filled when status is "في الخدمة"
+  if (statusValue === "في الخدمة" && !employeeNameValue) {
+    alert("يجب إدخال اسم الموظف عندما تكون الحالة 'في الخدمة'");
+    return;
+  }
+
   const laptop = {
-    employee_name: document.getElementById("lap-employee-name").value,
+    employee_name: statusValue === "في الخدمة" ? employeeNameValue : "",
     device_name: document.getElementById("lap-device-name").value,
-    location_type: document.getElementById("lap-location-type").value,
-    location: document.getElementById("lap-location").value,
+    location_type: locationTypeValue,
+    location: locationValue,
     brand: document.getElementById("lap-brand").value,
     model: document.getElementById("lap-model").value,
     processor: document.getElementById("lap-processor").value,
     pc_serial: document.getElementById("lap-pc-serial").value,
     screen_serial: document.getElementById("lap-screen-serial").value,
-    status: document.getElementById("lap-status").value,
+    status: statusValue,
     notes: document.getElementById("lap-notes").value,
   };
 
   const id = document.getElementById("laptopId").value;
 
   if (id) {
-    db.updateLaptop(id, laptop, () => {
+    db.updateLaptop(parseInt(id), laptop, () => {
       loadLaptops(currentLaptopLocation);
       laptopForm.reset();
       document.getElementById("laptopId").value = "";
@@ -196,13 +313,30 @@ laptopForm.addEventListener("submit", (e) => {
 });
 
 // Printer Functions
-function loadPrinters(location) {
-  currentPrinterLocation = location;
+function loadPrinters(location, locationType) {
+  // Save current filter state
+  if (locationType) currentPrinterLocationType = locationType;
+  if (location !== undefined) currentPrinterLocation = location;
+
   db.getAllPrinters((err, rows) => {
     if (err) console.error(err);
-    const filteredRows = location
-      ? rows.filter((r) => r.location === location)
-      : rows;
+
+    let filteredRows = rows;
+
+    // If location is specified, filter by location
+    if (currentPrinterLocation) {
+      filteredRows = rows.filter((r) => r.location === currentPrinterLocation);
+    } else if (currentPrinterLocationType === "directorate") {
+      // If directorate type with no specific location, show all directorate devices
+      filteredRows = rows.filter((r) => r.location_type === "directorate");
+    } else if (currentPrinterLocationType === "health_center") {
+      // If health center type but no specific location selected, show nothing
+      filteredRows = [];
+    } else {
+      // Default: show directorate devices
+      filteredRows = rows.filter((r) => r.location_type === "directorate");
+    }
+
     renderPrinterSummary(filteredRows, "printerSummary");
     renderPrinterTable(filteredRows, "printerTableContainer");
   });
@@ -261,23 +395,53 @@ window.deletePrinter = function (id) {
 printerForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
+  // Validate required fields
+  const locationTypeValue = document.getElementById("pr-location-type").value;
+  const locationValue = document.getElementById("pr-location").value;
+  const statusValue = document.getElementById("pr-status").value;
+  const employeeNameValue = document.getElementById("pr-employee-name").value;
+
+  // Check if location type is selected
+  if (!locationTypeValue) {
+    alert("يجب اختيار نوع الموقع");
+    return;
+  }
+
+  // Check if location is selected
+  if (!locationValue) {
+    alert("يجب اختيار الموقع");
+    return;
+  }
+
+  // Check if status is selected
+  if (!statusValue) {
+    alert("يجب اختيار حالة الجهاز");
+    return;
+  }
+
+  // Check if employee name is filled when status is "في الخدمة"
+  if (statusValue === "في الخدمة" && !employeeNameValue) {
+    alert("يجب إدخال اسم الموظف عندما تكون الحالة 'في الخدمة'");
+    return;
+  }
+
   const printer = {
-    employee_name: document.getElementById("pr-employee-name").value,
+    employee_name: statusValue === "في الخدمة" ? employeeNameValue : "",
     device_name: document.getElementById("pr-device-name").value,
-    location_type: document.getElementById("pr-location-type").value,
-    location: document.getElementById("pr-location").value,
+    location_type: locationTypeValue,
+    location: locationValue,
     brand: document.getElementById("pr-brand").value,
     model: document.getElementById("pr-model").value,
     serial: document.getElementById("pr-serial").value,
     scanner_type: document.getElementById("pr-scanner-type").value,
-    status: document.getElementById("pr-status").value,
+    status: statusValue,
     notes: document.getElementById("pr-notes").value,
   };
 
   const id = document.getElementById("printerId").value;
 
   if (id) {
-    db.updatePrinter(id, printer, () => {
+    db.updatePrinter(parseInt(id), printer, () => {
       loadPrinters(currentPrinterLocation);
       printerForm.reset();
       document.getElementById("printerId").value = "";
@@ -290,56 +454,181 @@ printerForm.addEventListener("submit", (e) => {
   }
 });
 
+// Location Type Filter Listeners
+document
+  .getElementById("laptop-location-type-filter")
+  .addEventListener("change", (e) => {
+    const typeFilter = document.getElementById("laptop-location-filter");
+    const selectedType = e.target.value;
+
+    if (selectedType === "") {
+      // Empty selection - show directorate by default
+      typeFilter.innerHTML = "";
+      DEPARTMENT_OPTIONS.forEach((option) => {
+        const optElement = document.createElement("option");
+        optElement.value = option.value;
+        optElement.textContent = option.label;
+        typeFilter.appendChild(optElement);
+      });
+      currentLaptopLocationType = "directorate";
+      currentLaptopLocation = "";
+      loadLaptops("", "directorate");
+    } else if (selectedType === "directorate") {
+      // Directorate selected - populate with departments
+      typeFilter.innerHTML = "";
+      DEPARTMENT_OPTIONS.forEach((option) => {
+        const optElement = document.createElement("option");
+        optElement.value = option.value;
+        optElement.textContent = option.label;
+        typeFilter.appendChild(optElement);
+      });
+      currentLaptopLocationType = "directorate";
+      currentLaptopLocation = "";
+      loadLaptops("", "directorate");
+    } else if (selectedType === "health_center") {
+      // Health center selected - populate with health centers
+      typeFilter.innerHTML = "";
+      LOCATION_OPTIONS.forEach((option) => {
+        const optElement = document.createElement("option");
+        optElement.value = option.value;
+        optElement.textContent = option.label;
+        typeFilter.appendChild(optElement);
+      });
+      currentLaptopLocationType = "health_center";
+      currentLaptopLocation = "";
+      loadLaptops("", "health_center");
+    }
+  });
+
+document
+  .getElementById("printer-location-type-filter")
+  .addEventListener("change", (e) => {
+    const typeFilter = document.getElementById("printer-location-filter");
+    const selectedType = e.target.value;
+
+    if (selectedType === "") {
+      // Empty selection - show directorate by default
+      typeFilter.innerHTML = "";
+      DEPARTMENT_OPTIONS.forEach((option) => {
+        const optElement = document.createElement("option");
+        optElement.value = option.value;
+        optElement.textContent = option.label;
+        typeFilter.appendChild(optElement);
+      });
+      currentPrinterLocationType = "directorate";
+      currentPrinterLocation = "";
+      loadPrinters("", "directorate");
+    } else if (selectedType === "directorate") {
+      // Directorate selected - populate with departments
+      typeFilter.innerHTML = "";
+      DEPARTMENT_OPTIONS.forEach((option) => {
+        const optElement = document.createElement("option");
+        optElement.value = option.value;
+        optElement.textContent = option.label;
+        typeFilter.appendChild(optElement);
+      });
+      currentPrinterLocationType = "directorate";
+      currentPrinterLocation = "";
+      loadPrinters("", "directorate");
+    } else if (selectedType === "health_center") {
+      // Health center selected - populate with health centers
+      typeFilter.innerHTML = "";
+      LOCATION_OPTIONS.forEach((option) => {
+        const optElement = document.createElement("option");
+        optElement.value = option.value;
+        optElement.textContent = option.label;
+        typeFilter.appendChild(optElement);
+      });
+      currentPrinterLocationType = "health_center";
+      currentPrinterLocation = "";
+      loadPrinters("", "health_center");
+    }
+  });
+
 // Location Filter Listeners
 document
   .getElementById("laptop-location-filter")
   .addEventListener("change", (e) => {
-    loadLaptops(e.target.value);
+    const locationType = document.getElementById(
+      "laptop-location-type-filter",
+    ).value;
+    loadLaptops(e.target.value, locationType);
   });
 
 document
   .getElementById("printer-location-filter")
   .addEventListener("change", (e) => {
-    loadPrinters(e.target.value);
+    const locationType = document.getElementById(
+      "printer-location-type-filter",
+    ).value;
+    loadPrinters(e.target.value, locationType);
   });
 
 // Initialize filter dropdowns
 function initializeFilters() {
-  const laptopFilter = document.getElementById("laptop-location-filter");
-  const printerFilter = document.getElementById("printer-location-filter");
+  const laptopTypeFilter = document.getElementById(
+    "laptop-location-type-filter",
+  );
+  const printerTypeFilter = document.getElementById(
+    "printer-location-type-filter",
+  );
 
-  // Populate location filters
-  LOCATION_OPTIONS.forEach((option) => {
-    const optElement = document.createElement("option");
-    optElement.value = option.value;
-    optElement.textContent = option.label;
-    laptopFilter.appendChild(optElement);
+  // Populate location type filters
+  LOCATION_TYPE_OPTIONS.forEach((option) => {
+    const laptopOpt = document.createElement("option");
+    laptopOpt.value = option.value;
+    laptopOpt.textContent = option.label;
+    laptopTypeFilter.appendChild(laptopOpt);
 
-    const optElement2 = document.createElement("option");
-    optElement2.value = option.value;
-    optElement2.textContent = option.label;
-    printerFilter.appendChild(optElement2);
+    const printerOpt = document.createElement("option");
+    printerOpt.value = option.value;
+    printerOpt.textContent = option.label;
+    printerTypeFilter.appendChild(printerOpt);
   });
+
+  // Set default to "directorate"
+  laptopTypeFilter.value = "directorate";
+  printerTypeFilter.value = "directorate";
 }
 
 // Initialize form fields dynamically
 function initializeLaptopForm() {
   const container = document.getElementById("laptopFormFields");
   container.innerHTML =
-    createInput("lap-employee-name", "اسم الموظف", "أدخل اسم الموظف", false) +
-    createInput("lap-device-name", "اسم الجهاز", "أدخل اسم الجهاز", false) +
-    createSelect("lap-location-type", "نوع الموقع", LOCATION_TYPE_OPTIONS) +
+    createInput("lap-device-name", "اسم الجهاز", "أدخل اسم الجهاز", true) +
+    createSelect(
+      "lap-location-type",
+      "نوع الموقع",
+      LOCATION_TYPE_OPTIONS,
+      true,
+    ) +
     `<div id="lap-location-wrapper" style="display: none;">` +
-    createSelect("lap-location", "الموقع", [
-      { value: "", label: "اختر الموقع" },
-    ]) +
+    createSelect(
+      "lap-location",
+      "الموقع",
+      [{ value: "", label: "اختر الموقع" }],
+      true,
+    ) +
     `</div>` +
-    createSelect("lap-brand", "العلامة التجارية", LAPTOP_BRAND_OPTIONS) +
-    createInput("lap-model", "الموديل", "أدخل الموديل") +
-    createInput("lap-processor", "المعالج", "أدخل المعالج") +
-    createInput("lap-pc-serial", "رقم تسلسل الكمبيوتر", "أدخل رقم التسلسل") +
-    createInput("lap-screen-serial", "رقم تسلسل الشاشة", "أدخل رقم التسلسل") +
-    createSelect("lap-status", "الحالة", STATUS_OPTIONS) +
+    createSelect("lap-status", "حالة الجهاز", STATUS_OPTIONS, true) +
+    `<div id="lap-employee-wrapper" style="display: none;">` +
+    createInput("lap-employee-name", "اسم الموظف", "أدخل اسم الموظف", false) +
+    `</div>` +
+    createSelect("lap-brand", "العلامة التجارية", LAPTOP_BRAND_OPTIONS, true) +
+    createInput("lap-model", "الموديل", "أدخل الموديل", true) +
+    createInput("lap-processor", "المعالج", "أدخل المعالج", true) +
+    createInput(
+      "lap-pc-serial",
+      "رقم تسلسل الكمبيوتر",
+      "أدخل رقم التسلسل",
+      true,
+    ) +
+    createInput(
+      "lap-screen-serial",
+      "رقم تسلسل الشاشة",
+      "أدخل رقم التسلسل",
+      true,
+    ) +
     createInput("lap-notes", "ملاحظات", "أدخل أي ملاحظات", false);
 
   // Set up location visibility logic
@@ -364,29 +653,65 @@ function initializeLaptopForm() {
   };
 
   setupLocationVisibility();
+
+  // Set up employee name visibility logic (only show if status = "في الخدمة")
+  const setupEmployeeVisibility = () => {
+    const statusSelect = document.getElementById("lap-status");
+    const wrapper = document.getElementById("lap-employee-wrapper");
+    const employeeInput = document.getElementById("lap-employee-name");
+
+    const updateVisibility = () => {
+      if (statusSelect.value === "في الخدمة") {
+        wrapper.style.display = "block";
+        employeeInput.setAttribute("required", "required");
+      } else {
+        wrapper.style.display = "none";
+        employeeInput.removeAttribute("required");
+        employeeInput.value = ""; // Clear the value when hiding
+      }
+    };
+
+    // Check initial state
+    updateVisibility();
+
+    // Listen for changes
+    statusSelect.addEventListener("change", updateVisibility);
+  };
+
+  setupEmployeeVisibility();
 }
 
 function initializePrinterForm() {
   const container = document.getElementById("printerFormFields");
   container.innerHTML =
-    createInput("pr-employee-name", "اسم الموظف", "أدخل اسم الموظف", false) +
-    createInput("pr-device-name", "اسم الجهاز", "أدخل اسم الجهاز", false) +
-    createSelect("pr-location-type", "نوع الموقع", LOCATION_TYPE_OPTIONS) +
+    createInput("pr-device-name", "اسم الجهاز", "أدخل اسم الجهاز", true) +
+    createSelect(
+      "pr-location-type",
+      "نوع الموقع",
+      LOCATION_TYPE_OPTIONS,
+      true,
+    ) +
     `<div id="pr-location-wrapper" style="display: none;">` +
-    createSelect("pr-location", "الموقع", [
-      { value: "", label: "اختر الموقع" },
-    ]) +
+    createSelect(
+      "pr-location",
+      "الموقع",
+      [{ value: "", label: "اختر الموقع" }],
+      true,
+    ) +
     `</div>` +
-    createSelect("pr-brand", "العلامة التجارية", PRINTER_BRAND_OPTIONS) +
-    createInput("pr-model", "الموديل", "أدخل الموديل") +
-    createInput("pr-serial", "رقم التسلسل", "أدخل رقم التسلسل") +
+    createSelect("pr-status", "حالة الجهاز", STATUS_OPTIONS, true) +
+    `<div id="pr-employee-wrapper" style="display: none;">` +
+    createInput("pr-employee-name", "اسم الموظف", "أدخل اسم الموظف", false) +
+    `</div>` +
+    createSelect("pr-brand", "العلامة التجارية", PRINTER_BRAND_OPTIONS, true) +
+    createInput("pr-model", "الموديل", "أدخل الموديل", true) +
+    createInput("pr-serial", "رقم التسلسل", "أدخل رقم التسلسل", true) +
     createInput(
       "pr-scanner-type",
       "نوع السكانر والرقم التسلسلي",
       "أدخل نوع السكانر والرقم",
       false,
     ) +
-    createSelect("pr-status", "الحالة", STATUS_OPTIONS) +
     createInput("pr-notes", "ملاحظات", "أدخل أي ملاحظات", false);
 
   // Set up location visibility logic
@@ -411,6 +736,32 @@ function initializePrinterForm() {
   };
 
   setupLocationVisibility();
+
+  // Set up employee name visibility logic (only show if status = "في الخدمة")
+  const setupEmployeeVisibility = () => {
+    const statusSelect = document.getElementById("pr-status");
+    const wrapper = document.getElementById("pr-employee-wrapper");
+    const employeeInput = document.getElementById("pr-employee-name");
+
+    const updateVisibility = () => {
+      if (statusSelect.value === "في الخدمة") {
+        wrapper.style.display = "block";
+        employeeInput.setAttribute("required", "required");
+      } else {
+        wrapper.style.display = "none";
+        employeeInput.removeAttribute("required");
+        employeeInput.value = ""; // Clear the value when hiding
+      }
+    };
+
+    // Check initial state
+    updateVisibility();
+
+    // Listen for changes
+    statusSelect.addEventListener("change", updateVisibility);
+  };
+
+  setupEmployeeVisibility();
 }
 
 // Initialize after DOM is ready
@@ -419,5 +770,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initializePrinterForm();
   initializeFilters();
   initNavigation();
-  loadLaptops("");
+  loadLaptops("", "directorate");
+  loadPrinters("", "directorate");
 });

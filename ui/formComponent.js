@@ -152,8 +152,9 @@ const DEPARTMENT_OPTIONS = [
  */
 const STATUS_OPTIONS = [
   { value: "", label: "اختر الحالة" },
-  { value: "Available", label: "متاح" },
-  { value: "Used", label: "مستخدم" },
+  { value: "في الخدمة", label: "في الخدمة" },
+  { value: "مستودع", label: "مستودع" },
+  { value: "قيد الاتلاف", label: "قيد الاتلاف" },
 ];
 
 /**
