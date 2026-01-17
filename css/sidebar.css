@@ -1,7 +1,7 @@
 /* Sidebar Navigation Styling */
 
 .sidebar {
-  width: 260px;
+  width: 180px;
   height: 100vh;
   background: linear-gradient(
     135deg,
@@ -20,9 +20,9 @@
 }
 
 .sidebar-header {
-  padding: var(--spacing-2xl) var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-sm);
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-lg);
   font-weight: 700;
   text-align: center;
   letter-spacing: 0.5px;
@@ -44,15 +44,18 @@
 }
 
 .nav-item {
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-sm);
   cursor: pointer;
   transition: all var(--transition-base);
   border-left: 4px solid transparent;
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  font-size: var(--font-size-lg);
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-base);
   font-weight: 500;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
 }
 
 .nav-item:hover {
