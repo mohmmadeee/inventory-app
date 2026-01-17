@@ -5,6 +5,7 @@ body {
   height: 100vh;
   margin: 0;
   overflow: hidden;
+  background: var(--bg-main);
 }
 
 .main-content {
@@ -12,14 +13,15 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  margin-left: 260px;
+  margin-left: 180px;
   overflow-y: auto;
+  background: var(--bg-main);
 }
 
 .content-header {
   background: var(--bg-card);
-  padding: var(--spacing-lg) var(--spacing-2xl);
-  border-bottom: 1px solid var(--gray-200);
+  padding: var(--spacing-xl) var(--spacing-2xl);
+  border-bottom: 2px solid var(--gray-200);
   box-shadow: var(--shadow-sm);
   flex-shrink: 0;
   position: sticky;
@@ -29,9 +31,10 @@ body {
 
 .content-header h1 {
   color: var(--gray-900);
-  font-size: var(--font-size-xl);
-  font-weight: 700;
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
   margin: 0;
+  letter-spacing: 0.5px;
 }
 
 .content-area {

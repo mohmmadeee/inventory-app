@@ -4,13 +4,16 @@
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  overflow: hidden;
+  overflow-x: auto;
   margin-top: var(--spacing-xl);
+  border: 1px solid var(--gray-200);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  font-size: var(--font-size-lg);
+  table-layout: auto;
 }
 
 thead {
@@ -20,25 +23,40 @@ thead {
     var(--primary-main) 100%
   );
   color: white;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+th,
+td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
+  vertical-align: middle;
+  font-size: var(--font-size-lg);
 }
 
 th {
-  padding: var(--spacing-md);
-  text-align: left;
-  font-weight: 600;
-  font-size: var(--font-size-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
 }
 
 td {
-  padding: var(--spacing-md) var(--spacing-lg);
   border-top: 1px solid var(--gray-200);
-  font-size: var(--font-size-base);
+  color: var(--gray-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+tbody tr {
+  transition: background var(--transition-fast);
 }
 
 tbody tr:hover {
-  background: var(--gray-50);
+  background: #f0f7ff;
 }
 
 tbody tr:nth-child(even) {
@@ -47,11 +65,33 @@ tbody tr:nth-child(even) {
 
 /* Status Badge */
 .status {
-  display: inline-block;
-  padding: 4px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: 20px;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  min-width: 120px;
+  white-space: nowrap;
+}
+
+.status-active {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-warehouse {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.status-destruction {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
 
 .status-available {
@@ -64,28 +104,42 @@ tbody tr:nth-child(even) {
   color: #856404;
 }
 
+.status-default {
+  background: var(--gray-200);
+  color: var(--gray-700);
+}
+
 /* Action Buttons */
 .action-buttons {
   display: flex;
-  gap: var(--spacing-xs);
+  align-items: center;
+  gap: var(--spacing-md);
+  white-space: nowrap;
 }
 
 .btn-sm {
-  padding: 6px 12px;
+  padding: var(--spacing-sm) var(--spacing-lg);
   border: none;
   border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: 700;
   cursor: pointer;
   transition: all var(--transition-fast);
   font-family: var(--font-family);
   background: var(--accent-warm);
   color: white;
+  letter-spacing: 0.3px;
+  min-width: 80px;
 }
 
 .btn-sm:hover {
   background: var(--accent-dark);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+}
+
+.btn-sm:active {
+  transform: translateY(0);
 }
 
 .btn-sm.btn-danger {
@@ -94,6 +148,7 @@ tbody tr:nth-child(even) {
 
 .btn-sm.btn-danger:hover {
   background: var(--danger-dark);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
 }
 
 /* Summary Section */
@@ -120,7 +175,11 @@ tbody tr:nth-child(even) {
 }
 
 .card {
-  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-main) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary-light) 0%,
+    var(--primary-main) 100%
+  );
   color: white;
   padding: var(--spacing-lg);
   border-radius: var(--radius-md);

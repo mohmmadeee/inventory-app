@@ -95,14 +95,6 @@ const LOCATION_OPTIONS = [
 ];
 
 /**
- * Special locations (Warehouse, Damage)
- */
-const SPECIAL_LOCATIONS = [
-  { value: "المستودع", label: "المستودع" },
-  { value: "اتلاف", label: "اتلاف" },
-];
-
-/**
  * Department/Section options (internal directorate departments)
  */
 const DEPARTMENT_OPTIONS = [
@@ -192,7 +184,6 @@ module.exports = {
   createSelect,
   LOCATION_TYPE_OPTIONS,
   LOCATION_OPTIONS,
-  SPECIAL_LOCATIONS,
   DEPARTMENT_OPTIONS,
   STATUS_OPTIONS,
   LAPTOP_BRAND_OPTIONS,

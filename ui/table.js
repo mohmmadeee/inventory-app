@@ -57,6 +57,7 @@ function renderLaptopTable(items, containerId) {
   let html = `
     <table>
       <tr>
+        <th>#</th>
         <th>اسم الجهاز</th>
         <th>الموقع</th>
         <th>العلامة التجارية</th>
@@ -64,11 +65,12 @@ function renderLaptopTable(items, containerId) {
         <th>المعالج</th>
         <th>اسم الموظف</th>
         <th>الحالة</th>
+        <th>ملاحظات</th>
         <th>الإجراءات</th>
       </tr>
   `;
 
-  items.forEach((item) => {
+  items.forEach((item, index) => {
     let statusClass = "status-default";
     let statusText = item.status;
 
@@ -84,6 +86,7 @@ function renderLaptopTable(items, containerId) {
 
     html += `
       <tr>
+        <td class="row-number">${index + 1}</td>
         <td>${item.device_name || "-"}</td>
         <td>${item.location}</td>
         <td>${item.brand}</td>
@@ -91,6 +94,7 @@ function renderLaptopTable(items, containerId) {
         <td>${item.processor}</td>
         <td>${employeeName}</td>
         <td><span class="status ${statusClass}">${statusText}</span></td>
+        <td>${item.notes || "-"}</td>
         <td>
           <button class="btn-sm edit-laptop-btn" data-id="${item.id}">تعديل</button>
           <button class="btn-sm btn-danger delete-laptop-btn" data-id="${item.id}">حذف</button>
@@ -161,17 +165,19 @@ function renderPrinterTable(items, containerId) {
   let html = `
     <table>
       <tr>
+        <th>#</th>
         <th>اسم الجهاز</th>
         <th>الموقع</th>
         <th>العلامة التجارية</th>
         <th>الموديل</th>
         <th>اسم الموظف</th>
         <th>الحالة</th>
+        <th>ملاحظات</th>
         <th>الإجراءات</th>
       </tr>
   `;
 
-  items.forEach((item) => {
+  items.forEach((item, index) => {
     let statusClass = "status-default";
     let statusText = item.status;
 
@@ -187,12 +193,14 @@ function renderPrinterTable(items, containerId) {
 
     html += `
       <tr>
+        <td class="row-number">${index + 1}</td>
         <td>${item.device_name || "-"}</td>
         <td>${item.location}</td>
         <td>${item.brand}</td>
         <td>${item.model}</td>
         <td>${employeeName}</td>
         <td><span class="status ${statusClass}">${statusText}</span></td>
+        <td>${item.notes || "-"}</td>
         <td>
           <button class="btn-sm edit-printer-btn" data-id="${item.id}">تعديل</button>
           <button class="btn-sm btn-danger delete-printer-btn" data-id="${item.id}">حذف</button>
