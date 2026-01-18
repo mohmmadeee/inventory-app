@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 
 // Only enable reload in development
@@ -8,7 +8,7 @@ try {
       __dirname,
       "node_modules",
       ".bin",
-      process.platform === "win32" ? "electron.cmd" : "electron"
+      process.platform === "win32" ? "electron.cmd" : "electron",
     ),
   });
 } catch (err) {
@@ -29,6 +29,18 @@ function createWindow() {
 }
 
 app.whenReady().then(createWindow);
+
+// IPC handler for confirmation dialogs
+ipcMain.handle("show-confirm-dialog", async (event, message) => {
+  const result = await dialog.showMessageBox({
+    type: "question",
+    buttons: ["نعم", "إلغاء"],
+    message: message,
+    defaultId: 1,
+    cancelId: 1, // Make sure X button behaves like Cancel button
+  });
+  return result.response === 0; // true ONLY if "نعم" clicked
+});
 
 // Quit app when all windows are closed (Windows behavior)
 app.on("window-all-closed", () => {
