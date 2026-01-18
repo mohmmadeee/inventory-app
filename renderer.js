@@ -19,6 +19,32 @@ const {
 const laptopForm = document.getElementById("laptopForm");
 const printerForm = document.getElementById("printerForm");
 
+// Store handler references to properly remove listeners
+const formHandlers = {
+  laptop: {
+    handleLocationTypeChange: null,
+    handleStatusChange: null,
+  },
+  printer: {
+    handleLocationTypeChange: null,
+    handleStatusChange: null,
+  },
+};
+
+// Helper function to simulate Alt+Tab effect (reset Electron focus)
+function resetWindowFocus() {
+  window.blur();
+  setTimeout(() => {
+    window.focus();
+  }, 10);
+}
+
+// Custom confirmation dialog using Electron's native dialog
+async function showConfirmDialog(message) {
+  const { ipcRenderer } = require("electron");
+  return await ipcRenderer.invoke("show-confirm-dialog", message);
+}
+
 let currentLaptopLocation = "";
 let currentLaptopLocationType = "directorate";
 let currentLaptopStatus = "";
@@ -266,6 +292,10 @@ window.editLaptop = function (id) {
 
     // Reset form and populate values
     laptopForm.reset();
+
+    // Re-attach form listeners to ensure they work properly
+    attachLaptopFormListeners();
+
     document.getElementById("laptopId").value = laptop.id;
     document.getElementById("lap-employee-name").value =
       laptop.employee_name || "";
@@ -294,13 +324,20 @@ window.editLaptop = function (id) {
     // Trigger visibility update based on loaded status
     const statusSelect = document.getElementById("lap-status");
     statusSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    // Reset window focus to fix event handling
+    resetWindowFocus();
   });
 };
 
 window.deleteLaptop = function (id) {
-  if (confirm("هل تريد حذف هذا الجهاز؟")) {
-    db.removeLaptop(id, () => loadLaptops(currentLaptopLocation));
-  }
+  showConfirmDialog("هل تريد حذف هذا الجهاز؟").then((confirmed) => {
+    if (confirmed) {
+      db.removeLaptop(id, () => {
+        loadLaptops(currentLaptopLocation);
+      });
+    }
+  });
 };
 
 laptopForm.addEventListener("submit", (e) => {
@@ -443,6 +480,10 @@ window.editPrinter = function (id) {
 
     // Reset form and populate values
     printerForm.reset();
+
+    // Re-attach form listeners to ensure they work properly
+    attachPrinterFormListeners();
+
     document.getElementById("printerId").value = printer.id;
     document.getElementById("pr-employee-name").value =
       printer.employee_name || "";
@@ -471,13 +512,20 @@ window.editPrinter = function (id) {
     // Trigger visibility update based on loaded status
     const statusSelect = document.getElementById("pr-status");
     statusSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    // Reset window focus to fix event handling
+    resetWindowFocus();
   });
 };
 
 window.deletePrinter = function (id) {
-  if (confirm("هل تريد حذف هذه الطابعة؟")) {
-    db.removePrinter(id, () => loadPrinters(currentPrinterLocation));
-  }
+  showConfirmDialog("هل تريد حذف هذه الطابعة؟").then((confirmed) => {
+    if (confirmed) {
+      db.removePrinter(id, () => {
+        loadPrinters(currentPrinterLocation);
+      });
+    }
+  });
 };
 
 printerForm.addEventListener("submit", (e) => {
@@ -759,54 +807,79 @@ function initializeLaptopForm() {
     ) +
     createInput("lap-notes", "ملاحظات", "أدخل أي ملاحظات", false);
 
-  // Set up location visibility logic
-  const setupLocationVisibility = () => {
-    const typeSelect = document.getElementById("lap-location-type");
-    const wrapper = document.getElementById("lap-location-wrapper");
+  // Attach event listeners for visibility
+  attachLaptopFormListeners();
 
-    const updateVisibility = () => {
-      if (typeSelect.value === "") {
-        wrapper.style.display = "none";
-      } else {
-        wrapper.style.display = "block";
-        updateLocationDropdown("lap-location", typeSelect.value);
-      }
-    };
+  // Initialize visibility on initial load
+  setTimeout(() => {
+    if (formHandlers.laptop.handleLocationTypeChange) {
+      formHandlers.laptop.handleLocationTypeChange();
+    }
+    if (formHandlers.laptop.handleStatusChange) {
+      formHandlers.laptop.handleStatusChange();
+    }
+  }, 0);
+}
 
-    // Check initial state
-    updateVisibility();
+// Separate function to attach/reattach form listeners
+function attachLaptopFormListeners() {
+  const typeSelect = document.getElementById("lap-location-type");
+  const locationWrapper = document.getElementById("lap-location-wrapper");
+  const statusSelect = document.getElementById("lap-status");
+  const employeeWrapper = document.getElementById("lap-employee-wrapper");
+  const employeeInput = document.getElementById("lap-employee-name");
 
-    // Listen for changes
-    typeSelect.addEventListener("change", updateVisibility);
+  if (!typeSelect || !statusSelect) return; // Safety check
+
+  // Remove old listeners if they exist
+  if (formHandlers.laptop.handleLocationTypeChange) {
+    typeSelect.removeEventListener(
+      "change",
+      formHandlers.laptop.handleLocationTypeChange,
+    );
+  }
+  if (formHandlers.laptop.handleStatusChange) {
+    statusSelect.removeEventListener(
+      "change",
+      formHandlers.laptop.handleStatusChange,
+    );
+  }
+
+  // Location visibility handler
+  formHandlers.laptop.handleLocationTypeChange = () => {
+    if (typeSelect.value === "") {
+      locationWrapper.style.display = "none";
+    } else {
+      locationWrapper.style.display = "block";
+      updateLocationDropdown("lap-location", typeSelect.value);
+    }
   };
 
-  setupLocationVisibility();
-
-  // Set up employee name visibility logic (only show if status = "في الخدمة")
-  const setupEmployeeVisibility = () => {
-    const statusSelect = document.getElementById("lap-status");
-    const wrapper = document.getElementById("lap-employee-wrapper");
-    const employeeInput = document.getElementById("lap-employee-name");
-
-    const updateVisibility = () => {
-      if (statusSelect.value === "في الخدمة") {
-        wrapper.style.display = "block";
-        employeeInput.setAttribute("required", "required");
-      } else {
-        wrapper.style.display = "none";
-        employeeInput.removeAttribute("required");
-        employeeInput.value = ""; // Clear the value when hiding
-      }
-    };
-
-    // Check initial state
-    updateVisibility();
-
-    // Listen for changes
-    statusSelect.addEventListener("change", updateVisibility);
+  // Employee visibility handler
+  formHandlers.laptop.handleStatusChange = () => {
+    if (statusSelect.value === "في الخدمة") {
+      employeeWrapper.style.display = "block";
+      employeeInput.setAttribute("required", "required");
+    } else {
+      employeeWrapper.style.display = "none";
+      employeeInput.removeAttribute("required");
+      employeeInput.value = "";
+    }
   };
 
-  setupEmployeeVisibility();
+  // Attach new listeners
+  typeSelect.addEventListener(
+    "change",
+    formHandlers.laptop.handleLocationTypeChange,
+  );
+  statusSelect.addEventListener(
+    "change",
+    formHandlers.laptop.handleStatusChange,
+  );
+
+  // DON'T initialize visibility here - let the change events after setting values handle it
+  // formHandlers.laptop.handleLocationTypeChange();
+  // formHandlers.laptop.handleStatusChange();
 }
 
 function initializePrinterForm() {
@@ -842,54 +915,79 @@ function initializePrinterForm() {
     ) +
     createInput("pr-notes", "ملاحظات", "أدخل أي ملاحظات", false);
 
-  // Set up location visibility logic
-  const setupLocationVisibility = () => {
-    const typeSelect = document.getElementById("pr-location-type");
-    const wrapper = document.getElementById("pr-location-wrapper");
+  // Attach event listeners for visibility
+  attachPrinterFormListeners();
 
-    const updateVisibility = () => {
-      if (typeSelect.value === "") {
-        wrapper.style.display = "none";
-      } else {
-        wrapper.style.display = "block";
-        updateLocationDropdown("pr-location", typeSelect.value);
-      }
-    };
+  // Initialize visibility on initial load
+  setTimeout(() => {
+    if (formHandlers.printer.handleLocationTypeChange) {
+      formHandlers.printer.handleLocationTypeChange();
+    }
+    if (formHandlers.printer.handleStatusChange) {
+      formHandlers.printer.handleStatusChange();
+    }
+  }, 0);
+}
 
-    // Check initial state
-    updateVisibility();
+// Separate function to attach/reattach printer form listeners
+function attachPrinterFormListeners() {
+  const typeSelect = document.getElementById("pr-location-type");
+  const locationWrapper = document.getElementById("pr-location-wrapper");
+  const statusSelect = document.getElementById("pr-status");
+  const employeeWrapper = document.getElementById("pr-employee-wrapper");
+  const employeeInput = document.getElementById("pr-employee-name");
 
-    // Listen for changes
-    typeSelect.addEventListener("change", updateVisibility);
+  if (!typeSelect || !statusSelect) return; // Safety check
+
+  // Remove old listeners if they exist
+  if (formHandlers.printer.handleLocationTypeChange) {
+    typeSelect.removeEventListener(
+      "change",
+      formHandlers.printer.handleLocationTypeChange,
+    );
+  }
+  if (formHandlers.printer.handleStatusChange) {
+    statusSelect.removeEventListener(
+      "change",
+      formHandlers.printer.handleStatusChange,
+    );
+  }
+
+  // Location visibility handler
+  formHandlers.printer.handleLocationTypeChange = () => {
+    if (typeSelect.value === "") {
+      locationWrapper.style.display = "none";
+    } else {
+      locationWrapper.style.display = "block";
+      updateLocationDropdown("pr-location", typeSelect.value);
+    }
   };
 
-  setupLocationVisibility();
-
-  // Set up employee name visibility logic (only show if status = "في الخدمة")
-  const setupEmployeeVisibility = () => {
-    const statusSelect = document.getElementById("pr-status");
-    const wrapper = document.getElementById("pr-employee-wrapper");
-    const employeeInput = document.getElementById("pr-employee-name");
-
-    const updateVisibility = () => {
-      if (statusSelect.value === "في الخدمة") {
-        wrapper.style.display = "block";
-        employeeInput.setAttribute("required", "required");
-      } else {
-        wrapper.style.display = "none";
-        employeeInput.removeAttribute("required");
-        employeeInput.value = ""; // Clear the value when hiding
-      }
-    };
-
-    // Check initial state
-    updateVisibility();
-
-    // Listen for changes
-    statusSelect.addEventListener("change", updateVisibility);
+  // Employee visibility handler
+  formHandlers.printer.handleStatusChange = () => {
+    if (statusSelect.value === "في الخدمة") {
+      employeeWrapper.style.display = "block";
+      employeeInput.setAttribute("required", "required");
+    } else {
+      employeeWrapper.style.display = "none";
+      employeeInput.removeAttribute("required");
+      employeeInput.value = "";
+    }
   };
 
-  setupEmployeeVisibility();
+  // Attach new listeners
+  typeSelect.addEventListener(
+    "change",
+    formHandlers.printer.handleLocationTypeChange,
+  );
+  statusSelect.addEventListener(
+    "change",
+    formHandlers.printer.handleStatusChange,
+  );
+
+  // DON'T initialize visibility here - let the change events after setting values handle it
+  // formHandlers.printer.handleLocationTypeChange();
+  // formHandlers.printer.handleStatusChange();
 }
 
 // Print functionality
