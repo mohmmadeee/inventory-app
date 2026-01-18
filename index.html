@@ -6,7 +6,7 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'"
     />
-    <title>نظام المخزون</title>
+    <title>معدات الحاسوب</title>
 
     <!-- CSS Files -->
     <link rel="stylesheet" href="css/variables.css" />
@@ -18,7 +18,7 @@
   <body>
     <!-- Sidebar Navigation -->
     <div class="sidebar">
-      <div class="sidebar-header">📦 نظام المخزون</div>
+      <div class="sidebar-header">معدات الحاسوب</div>
       <nav class="sidebar-nav">
         <div class="nav-item active" data-section="add-laptop">
           <span class="nav-icon">💻</span>
@@ -95,6 +95,9 @@
               class="search-input"
             />
             <button id="print-laptops-btn" class="btn-print">🖨️ طباعة</button>
+            <button id="export-laptops-btn" class="btn-export">
+              📊 تصدير Excel
+            </button>
           </div>
           <div class="summary-section" id="laptopSummary"></div>
           <div class="table-section">
@@ -123,6 +126,9 @@
               class="search-input"
             />
             <button id="print-printers-btn" class="btn-print">🖨️ طباعة</button>
+            <button id="export-printers-btn" class="btn-export">
+              📊 تصدير Excel
+            </button>
           </div>
           <div class="summary-section" id="printerSummary"></div>
           <div class="table-section">

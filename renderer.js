@@ -235,6 +235,9 @@ function loadLaptops(location, locationType, status, search) {
       );
     }
 
+    // Store filtered data for export
+    currentFilteredLaptops = filteredRows;
+
     renderLaptopSummary(filteredRows, "laptopSummary");
     renderLaptopTable(filteredRows, "laptopTableContainer");
   });
@@ -408,6 +411,9 @@ function loadPrinters(location, locationType, status, search) {
             r.employee_name.toLowerCase().includes(searchLower)),
       );
     }
+
+    // Store filtered data for export
+    currentFilteredPrinters = filteredRows;
 
     renderPrinterSummary(filteredRows, "printerSummary");
     renderPrinterTable(filteredRows, "printerTableContainer");
@@ -904,6 +910,86 @@ function setupPrintButtons() {
   }
 }
 
+// Excel Export functionality
+function setupExportButtons() {
+  const exportLaptopsBtn = document.getElementById("export-laptops-btn");
+  const exportPrintersBtn = document.getElementById("export-printers-btn");
+
+  if (exportLaptopsBtn) {
+    exportLaptopsBtn.addEventListener("click", () => {
+      exportToExcel(currentFilteredLaptops, "أجهزة_الكمبيوتر");
+    });
+  }
+
+  if (exportPrintersBtn) {
+    exportPrintersBtn.addEventListener("click", () => {
+      exportToExcel(currentFilteredPrinters, "الطابعات");
+    });
+  }
+}
+
+// Store filtered data for export
+let currentFilteredLaptops = [];
+let currentFilteredPrinters = [];
+
+// Export data to Excel
+function exportToExcel(data, sheetName) {
+  if (data.length === 0) {
+    alert("لا توجد بيانات للتصدير!");
+    return;
+  }
+
+  try {
+    // Use dynamic require for xlsx
+    const XLSX = require("xlsx");
+    const path = require("path");
+    const os = require("os");
+    const fs = require("fs");
+
+    // Transform data for Excel export
+    const exportData = data.map((item, index) => ({
+      "#": index + 1,
+      "اسم الجهاز": item.device_name || "-",
+      الموقع: item.location || "-",
+      "العلامة التجارية": item.brand || "-",
+      الموديل: item.model || "-",
+      المعالج: item.processor || "-",
+      "اسم الموظف": item.employee_name || "-",
+      الحالة: item.status || "-",
+      ملاحظات: item.notes || "-",
+    }));
+
+    // Create workbook
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+    // Set column widths for better readability
+    const colWidths = [5, 15, 15, 15, 15, 15, 15, 15, 25];
+    ws["!cols"] = colWidths.map((width) => ({ wch: width }));
+
+    // Generate filename with current date
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("ar-EG").replace(/\//g, "-");
+    const filename = `${sheetName}_${dateStr}.xlsx`;
+
+    // Save to Desktop
+    const desktopPath = path.join(os.homedir(), "Desktop", filename);
+
+    // Create buffer and write to file
+    XLSX.writeFile(wb, desktopPath);
+
+    // Show success message with file location
+    const message = `✅ تم التصدير بنجاح!\n\n📁 الملف: ${filename}\n📍 الموقع: Desktop\n\n💡 ابحث عن الملف على سطح المكتب`;
+    alert(message);
+
+    console.log(`File saved to: ${desktopPath}`);
+  } catch (err) {
+    console.error("Export error:", err);
+    alert(`❌ حدث خطأ أثناء التصدير: ${err.message}`);
+  }
+}
+
 // Initialize after DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
   initializeLaptopForm();
@@ -911,4 +997,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeFilters();
   initNavigation();
   setupPrintButtons();
+  setupExportButtons();
 });
